@@ -4,17 +4,39 @@ import { z } from "zod";
 import { listContacts } from "./contacts.js";
 import { initializeAuth } from "./Auth.js";
 
-// Create server instance
 const server = new McpServer({
   name: "google-contacts",
   version: "1.0.0",
   capabilities: {
     resources: {},
-    tools: {},
+    tools: {
+      "google-contacts.list": {
+        description: "List Google Contacts",
+        parameters: {
+          type: "object",
+          properties: {},
+          required: [],
+        },
+        handler: async () => {
+          const auth = await initializeAuth();
+          const contacts = await listContacts(auth);
+          return { contacts };
+        },
+      },
+    },
   },
 });
 
 async function main() {
+  if (process.argv.includes("--test-no-mcp")) {
+    console.log("Running in test mode...");
+    const auth = await initializeAuth();
+    const contacts = await listContacts(auth);
+    console.log("Found contacts:", contacts.length);
+    console.log("First contact:", contacts[0]);
+    return;
+  }
+
   const transport = new StdioServerTransport();
   await server.connect(transport);
   console.error("Google Contacts MCP Server running on stdio");
