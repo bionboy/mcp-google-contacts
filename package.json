@@ -2,24 +2,28 @@
   "type": "module",
   "name": "mcp-server-demo",
   "version": "1.0.0",
-  "description": "",
+  "description": "MCP server for Google Contacts",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc && chmod 755 build/index.js"
+    "build": "tsc && chmod 755 build/index.js",
+    "start": "node build/index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.9.0",
   "bin": {
-    "weather": "./build/index.js"
+    "google-contacts": "./build/index.js"
   },
   "files": [
     "build"
   ],
   "dependencies": {
+    "@google-cloud/local-auth": "2.1.0",
     "@modelcontextprotocol/sdk": "^1.10.2",
+    "google-auth-library": "^9.15.1",
+    "googleapis": "^105.0.0",
     "zod": "^3.24.3"
   },
   "devDependencies": {

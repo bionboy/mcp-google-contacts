@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "weather": {
+    "google-contacts": {
       "command": "node",
       "args": ["./build/index.js"]
     }

@@ -1,11 +1,11 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import { getAlerts, getForecast } from "./weather.js";
+import { initializeAuth, getAuthUrl, setCredentials, listContacts } from "./contacts.js";
 
 // Create server instance
 const server = new McpServer({
-  name: "weather",
+  name: "google-contacts",
   version: "1.0.0",
   capabilities: {
     resources: {},
@@ -13,50 +13,53 @@ const server = new McpServer({
   },
 });
 
-// Register weather tools
+// Register contacts tools
 server.tool(
-  "get-alerts",
-  "Get weather alerts for a state",
+  "initialize-auth",
+  "Initialize Google Contacts authentication",
   {
-    state: z.string().length(2).describe("Two-letter state code (e.g. CA, NY)"),
+    credentials: z.any().describe("Google OAuth credentials JSON"),
   },
-  async ({ state }) => {
-    const alertsText = await getAlerts(state);
+  async ({ credentials }) => {
+    await initializeAuth(credentials);
     return {
-      content: [
-        {
-          type: "text",
-          text: alertsText,
-        },
-      ],
+      content: [{ type: "text", text: "Auth initialized successfully" }],
     };
   }
 );
 
+server.tool("get-auth-url", "Get Google OAuth URL", {}, async () => {
+  const url = await getAuthUrl();
+  return {
+    content: [{ type: "text", text: url }],
+  };
+});
+
 server.tool(
-  "get-forecast",
-  "Get weather forecast for a location",
+  "set-credentials",
+  "Set OAuth credentials using authorization code",
   {
-    latitude: z.number().min(-90).max(90).describe("Latitude of the location"),
-    longitude: z.number().min(-180).max(180).describe("Longitude of the location"),
+    code: z.string().describe("Authorization code from OAuth flow"),
   },
-  async ({ latitude, longitude }) => {
-    const forecastText = await getForecast(latitude, longitude);
+  async ({ code }) => {
+    const tokens = await setCredentials(code);
     return {
-      content: [
-        {
-          type: "text",
-          text: forecastText,
-        },
-      ],
+      content: [{ type: "text", text: "Credentials set successfully" }],
     };
   }
 );
+
+server.tool("list-contacts", "List Google Contacts", {}, async () => {
+  const contacts = await listContacts();
+  return {
+    content: [{ type: "text", text: JSON.stringify(contacts, null, 2) }],
+  };
+});
 
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error("Weather MCP Server running on stdio");
+  console.error("Google Contacts MCP Server running on stdio");
 }
 
 main().catch((error) => {
