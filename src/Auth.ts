@@ -2,13 +2,15 @@ import { google } from "googleapis";
 import { authenticate } from "@google-cloud/local-auth";
 import { promises as fs } from "fs";
 import { join } from "path";
-import { cwd } from "process";
 import { OAuth2Client } from "google-auth-library";
 
-const SCOPES = ["https://www.googleapis.com/auth/contacts.readonly"];
-const AUTH_PATH = join(cwd(), "auth/google/people-api/");
+// TODO: fix this hack and make it a portable path
+const PROJECT_ROOT = "/Users/bb/github/mine/mcp-server-demo";
+const AUTH_PATH = join(PROJECT_ROOT, "auth/google/people-api/");
 const TOKEN_PATH = join(AUTH_PATH, "token.json");
 const CREDENTIALS_PATH = join(AUTH_PATH, "credentials.json");
+
+const SCOPES = ["https://www.googleapis.com/auth/contacts.readonly"];
 
 /**
  * Reads previously authorized credentials from the save file.

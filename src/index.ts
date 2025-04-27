@@ -9,22 +9,25 @@ const server = new McpServer({
   version: "1.0.0",
   capabilities: {
     resources: {},
-    tools: {
-      "google-contacts.list": {
-        description: "List Google Contacts",
-        parameters: {
-          type: "object",
-          properties: {},
-          required: [],
-        },
-        handler: async () => {
-          const auth = await initializeAuth();
-          const contacts = await listContacts(auth);
-          return { contacts };
-        },
-      },
-    },
+    tools: {},
   },
+});
+
+server.tool("list contacts", "lists google contacts", async () => {
+  const auth = await initializeAuth();
+  const contacts = await listContacts(auth);
+  return {
+    content: [
+      {
+        type: "text",
+        text: `Found ${contacts.length} contacts`,
+      },
+      {
+        type: "text",
+        text: `${contacts}`,
+      },
+    ],
+  };
 });
 
 async function main() {
