@@ -9,8 +9,10 @@ const SCOPES = ["https://www.googleapis.com/auth/contacts.readonly"];
 // The file token.json stores the user's access and refresh tokens, and is
 // created automatically when the authorization flow completes for the first
 // time.
-const TOKEN_PATH = join(cwd(), "token.json");
-const CREDENTIALS_PATH = join(cwd(), "credentials.json");
+
+const AUTH_PATH = join(cwd(), "auth/google/people-api/");
+const TOKEN_PATH = join(AUTH_PATH, "token.json");
+const CREDENTIALS_PATH = join(AUTH_PATH, "credentials.json");
 
 /**
  * Reads previously authorized credentials from the save file.

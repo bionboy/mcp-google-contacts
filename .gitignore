@@ -201,4 +201,8 @@ __fixtures__/custom-modules-dir/patches/
 # My own custom ignore rules
 ########################################################
 
+# Build output should not be in git
 build/
+
+# Google API credentials should not be in git
+auth/google/people-api/
