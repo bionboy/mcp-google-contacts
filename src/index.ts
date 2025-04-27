@@ -16,6 +16,16 @@ const server = new McpServer({
 server.tool("list contacts", "lists google contacts", async () => {
   const auth = await initializeAuth();
   const contacts = await listContacts(auth);
+
+  const formattedContacts = contacts.map((contact) => {
+    const data = {
+      name: contact.names?.[0]?.displayName || null,
+      emails: contact.emailAddresses?.map((e) => e.value) || [],
+      phones: contact.phoneNumbers?.map((p) => p.value) || [],
+    };
+    return `CONTACT:${JSON.stringify(data)}`;
+  });
+
   return {
     content: [
       {
@@ -24,7 +34,7 @@ server.tool("list contacts", "lists google contacts", async () => {
       },
       {
         type: "text",
-        text: `${contacts}`,
+        text: formattedContacts.join("\n"),
       },
     ],
   };
