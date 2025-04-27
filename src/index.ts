@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import { listContacts } from "./contacts.js";
+import { listContacts, searchContacts, formatContact } from "./contacts.js";
 import { initializeAuth } from "./Auth.js";
 
 const server = new McpServer({
@@ -17,15 +17,6 @@ server.tool("list contacts", "lists google contacts", async () => {
   const auth = await initializeAuth();
   const contacts = await listContacts(auth);
 
-  const formattedContacts = contacts.map((contact) => {
-    const data = {
-      name: contact.names?.[0]?.displayName || null,
-      emails: contact.emailAddresses?.map((e) => e.value) || [],
-      phones: contact.phoneNumbers?.map((p) => p.value) || [],
-    };
-    return `CONTACT:${JSON.stringify(data)}`;
-  });
-
   return {
     content: [
       {
@@ -34,19 +25,49 @@ server.tool("list contacts", "lists google contacts", async () => {
       },
       {
         type: "text",
-        text: formattedContacts.join("\n"),
+        text: contacts.map(formatContact).join("\n"),
       },
     ],
   };
 });
 
+server.tool(
+  "search contacts",
+  "searches google contacts",
+  {
+    query: z.string().describe("The contacts' name, number, etc. used to search for the contact"),
+  },
+  async ({ query }) => {
+    const auth = await initializeAuth();
+    const contacts = await searchContacts(auth, query);
+    return {
+      content: [
+        {
+          type: "text",
+          text: contacts.map(formatContact).join("\n"),
+        },
+      ],
+    };
+  }
+);
+
 async function main() {
   if (process.argv.includes("--test-no-mcp")) {
     console.log("Running in test mode...");
     const auth = await initializeAuth();
+
     const contacts = await listContacts(auth);
     console.log("Found contacts:", contacts.length);
-    console.log("First contact:", contacts[0]);
+    console.log("First 5 contacts:", contacts.slice(0, 5));
+    console.log("first result formatted:", formatContact(contacts[0]));
+    console.log("--------------------------------");
+
+    const searchResults = await searchContacts(auth, "smith");
+    console.log("Search results:", searchResults.length);
+    console.log("First 5 search results:", searchResults.slice(0, 5));
+    console.log("first result formatted:", formatContact(searchResults[0]));
+    console.log("--------------------------------");
+
     return;
   }
 
