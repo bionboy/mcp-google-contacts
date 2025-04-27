@@ -1,11 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import { listContacts, searchContacts, formatContact } from "./contacts.js";
-import { initializeAuth } from "./Auth.js";
-import { test } from "./test.js";
-import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
-import { runSSEServer } from "./server/sse.js";
+import { listContacts, searchContacts, formatContact } from "../contacts.js";
+import { initializeAuth } from "../Auth.js";
 
 const server = new McpServer({
   name: "google-contacts",
@@ -54,23 +50,4 @@ server.tool(
   }
 );
 
-async function main() {
-  if (process.argv.includes("--test-no-mcp")) {
-    await test();
-    return;
-  }
-
-  let transport;
-  if (process.argv.includes("--sse")) {
-    runSSEServer();
-  } else {
-    transport = new StdioServerTransport();
-  }
-  await server.connect(transport);
-  console.error("Google Contacts MCP Server running on stdio");
-}
-
-main().catch((error) => {
-  console.error("Fatal error in main():", error);
-  process.exit(1);
-});
+export default server;
